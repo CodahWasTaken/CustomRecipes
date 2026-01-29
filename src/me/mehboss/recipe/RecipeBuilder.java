@@ -37,9 +37,6 @@ import org.bukkit.inventory.SmithingRecipe;
 import org.bukkit.inventory.SmokingRecipe;
 import org.bukkit.inventory.StonecuttingRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
-
-import me.mehboss.utils.DeserializeResult;
-import me.mehboss.utils.DeserializeResult.DeserializeReason;
 import me.mehboss.utils.RecipeUtil;
 import me.mehboss.utils.RecipeUtil.Ingredient;
 import me.mehboss.utils.RecipeUtil.Recipe;
@@ -538,18 +535,13 @@ public class RecipeBuilder {
 				}
 
 				// Try to deserialize using XItemstack (Deserializer)
-				DeserializeResult deserializedItem = getItemFactory().deserializeItemFromPath(recipeConfig,
+				Optional<ItemStack> deserializedItem = getItemFactory().deserializeItemFromPath(recipeConfig,
 						item + ".Ingredients." + abbreviation);
-				DeserializeReason failType = deserializedItem.getType();
-
-				if (failType == DeserializeReason.SUCCESS) {
-					ItemStack stack = deserializedItem.getItem();
+				if (deserializedItem.isPresent()) {
+					ItemStack stack = deserializedItem.get();
 					recipeIngredient = new RecipeUtil.Ingredient(abbreviation, stack.getType());
 					recipeIngredient.setItem(stack);
 					logDebug("Loading ingredient '" + abbreviation + "' from ItemStack..", recipe.getName());
-
-				} else if (failType == DeserializeReason.FAILED) {
-					continue recipeLoop;
 				} else {
 					recipeIngredient = getItemFactory().deserializeItemFromConfig(recipeConfig, recipe, item,
 							abbreviation);
